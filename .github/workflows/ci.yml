@@ -4,7 +4,10 @@ name: CI
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # support calling this workflow from other workflows
+  # https://docs.github.com/en/actions/learn-github-actions/reusing-workflows#creating-a-reusable-workflow
+  workflow_call:
+  # Triggers the workflow on push or pull request events
   push:
     branches: [ main, develop ]
   pull_request:
@@ -15,20 +18,6 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: 🕸️ Create the docker network
-        working-directory: ./aplicacao
-        run: docker network create gces-network
-
-      - name: 📦 Build project
-        working-directory: ./aplicacao
-        run: docker-compose up -d
-
   lint:
     runs-on: ubuntu-latest
 
@@ -56,3 +45,17 @@ jobs:
       - name: 🧪 Run tests
         working-directory: ./aplicacao
         run: docker-compose run biblioteca-pessoal bash -c "rails db:reset; rspec"
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 🕸️ Create the docker network
+        working-directory: ./aplicacao
+        run: docker network create gces-network
+
+      - name: 📦 Build project
+        working-directory: ./aplicacao
+        run: docker-compose up -d
